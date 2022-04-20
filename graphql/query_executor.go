@@ -14,11 +14,17 @@ import (
 )
 
 func queryExecute(ctx context.Context, d *schema.ResourceData, m interface{}, querySource, variableSource string) (*GqlQueryResponse, []byte, error) {
+	cfg := m.(*graphqlProviderConfig)
+	apiURL, err := cfg.GetServerUrl(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	query := d.Get(querySource).(string)
 	inputVariables := d.Get(variableSource).(map[string]interface{})
-	apiURL := m.(*graphqlProviderConfig).GQLServerUrl
-	headers := m.(*graphqlProviderConfig).RequestHeaders
-	authorizationHeaders := m.(*graphqlProviderConfig).RequestAuthorizationHeaders
+
+	headers := cfg.RequestHeaders
+	authorizationHeaders := cfg.RequestAuthorizationHeaders
 
 	var queryBodyBuffer bytes.Buffer
 
